@@ -1,0 +1,28 @@
+{
+    "case_studies": [
+        {
+            "id": 1,
+            "title": "Case study 1",
+            "student": "Pann Ei Ko Ko",
+            "grade": 90
+        },
+        {
+            "id": 2,
+            "title": "Case study 2",
+            "student": "Tain Yan Tun",
+            "grade": 100
+        },
+        {
+            "id": 3,
+            "title": "Case study 3",
+            "student": "David Ko",
+            "grade": 80
+        },
+        {
+            "id": 4,
+            "title": "Case study 4",
+            "student": "Gooo",
+            "grade": 60
+        }
+    ]
+}
