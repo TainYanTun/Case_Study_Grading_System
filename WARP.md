@@ -6,21 +6,14 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 This is a **PHP-based Case Study Grading System** for tracking presentation grades. The system provides a web interface to enter, track, and analyze grades for up to 25 case study presentations.
 
-**Two distinct versions exist:**
-- **Version_A**: Simple JSON-based system with comprehensive analytics dashboard
-- **Version_B**: More advanced system with student management, assignments, and detailed grading rubrics
+This is a simple JSON-based system with comprehensive analytics dashboard that allows users to manage case studies with basic CRUD operations and view performance statistics.
 
 ## Common Development Commands
 
 ### Running the Application
 
 ```bash
-# Navigate to the desired version
-cd Version_A
-# OR
-cd Version_B
-
-# Start a local PHP development server
+# Start a local PHP development server from the project root
 php -S localhost:8000
 
 # Access the application at http://localhost:8000
@@ -36,40 +29,34 @@ find . -name "*.php" -exec php -l {} \;
 find . -name "*.json" -exec python -m json.tool {} \; > /dev/null
 
 # Check file permissions (data files need write access)
-ls -la Version_A/grades.json
-ls -la Version_B/data/
+ls -la grades.json
 ```
 
 ### Data Management
 
 ```bash
-# View current grades data (Version A)
-cat Version_A/grades.json | jq '.'
+# View current grades data
+cat grades.json | jq '.'
 
 # Backup data files
-cp Version_A/grades.json Version_A/grades_backup_$(date +%Y%m%d).json
+cp grades.json grades_backup_$(date +%Y%m%d).json
 
-# Reset Version B data (removes all students/grades/assignments)
-rm -rf Version_B/data/*.json
+# Reset all data (removes all case studies)
+echo '{"case_studies": []}' > grades.json
 ```
 
 ## Architecture Overview
 
-### Version A Architecture
-- **Single-file monolith**: All functionality in `index.php` and `summary.php`
+### System Architecture
+- **Single-file application**: Main functionality in `index.php` and `summary.php`
 - **Data storage**: Simple `grades.json` file with case study entries
 - **Features**: Basic CRUD operations, analytics dashboard, export functionality
 - **Client-side**: Embedded CSS/JS with Chart.js for visualizations
-
-### Version B Architecture
-- **Modular structure**: Separates logic (`lib.php`) from presentation (`index.php`)
-- **Data storage**: Multiple JSON files in `data/` directory for different entities
-- **Features**: Student management, assignment tracking, detailed rubric grading, analytics
-- **Security**: File access protection and input sanitization
+- **Security**: Input validation and HTML escaping for XSS protection
 
 ### Key Data Models
 
-**Version A - Case Study:**
+**Case Study:**
 ```json
 {
     "id": 1,
@@ -79,60 +66,52 @@ rm -rf Version_B/data/*.json
 }
 ```
 
-**Version B - Grading Structure:**
+**Complete grades.json structure:**
 ```json
 {
-    "student_name": {
-        "grades": {
-            "technical_accuracy": 85,
-            "clarity": 90,
-            "answering": 88,
-            "understanding": 92
-        },
-        "average": 88.75
-    }
+    "case_studies": [
+        {
+            "id": 1,
+            "title": "Marketing Strategy Analysis",
+            "student": "John Smith",
+            "grade": 85
+        }
+    ]
 }
 ```
 
 ## Development Guidelines
 
 ### File Structure Patterns
-- Both versions use JSON for data persistence (no database required)
-- Version A: Single JSON file approach
-- Version B: Multi-file approach with dedicated `data/` directory
+- Uses JSON for data persistence (no database required)
+- Single JSON file approach with `grades.json`
 - All PHP files are self-contained with embedded CSS/JavaScript
 
 ### Data Handling
 - JSON files require write permissions for the web server
-- Use file locking (`flock`) when writing to JSON files to prevent corruption (see `lib.php`)
 - Always validate input data before persistence
 - Implement proper HTML escaping to prevent XSS attacks
+- Use atomic write operations when possible
 
 ### UI/UX Patterns
-- Both versions use responsive design with GitHub-like styling
+- Responsive design with GitHub-like styling
 - Dark/light theme toggle functionality with localStorage persistence
 - Chart.js integration for data visualization
 - Form validation on both client and server side
 
-### Common Functions (Version B)
-- `read_json($file)`: Safe JSON file reading with fallback
-- `write_json($file, $data)`: Atomic JSON writing with file locking
-- `escape_html($string)`: XSS protection for output
-- `record_analytics($event, $meta)`: Event tracking system
+## Application Features
 
-## Version-Specific Notes
-
-### Version A Specifics
+### Main Application (index.php)
 - **Entry point**: `index.php` (form input and dashboard)
-- **Analytics**: `summary.php` (comprehensive reporting and charts)
 - **Data validation**: ID must be 1-25, grade 0-100
-- **Features**: Grade statistics, performance trends, export to JSON/CSV
+- **CRUD operations**: Create, read, update case studies
+- **Real-time statistics**: Total cases, class average display
 
-### Version B Specifics
-- **Multi-step workflow**: Students → Assignments → Grading → Analytics
-- **Grading rubric**: 4 criteria (technical accuracy, clarity, answering, understanding)
-- **Analytics tracking**: Page views, activity monitoring, case study popularity
-- **Data protection**: Built-in security against direct file access
+### Analytics Dashboard (summary.php)
+- **Comprehensive reporting**: Grade statistics, performance trends
+- **Data visualization**: Charts and graphs using Chart.js
+- **Export functionality**: JSON and CSV export capabilities
+- **Performance analysis**: Grade distribution and student performance metrics
 
 ## Local Development Setup
 
